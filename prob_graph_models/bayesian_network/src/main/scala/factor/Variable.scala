@@ -5,6 +5,6 @@ package factor
   */
 class Variable(val name: String, val options: List[Any]) {
 
-  def this(name: String, cardinality: Integer) = this(name, 0 until cardinality)
+  def this(name: String, cardinality: Integer) = this(name, (0 until cardinality).toList)
   def cardinality: Integer = options.length
 }
