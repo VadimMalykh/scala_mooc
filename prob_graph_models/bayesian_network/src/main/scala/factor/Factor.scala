@@ -4,21 +4,28 @@ package factor
   * Created by vadim on 23/12/2016.
   */
 
-case class Factor(vars: Map[String, List[Double]]) {
+trait BaseFactor;
 
-  def *(that: Factor): Factor = {
+case class EmptyFactor() extends BaseFactor;
+
+case class Factor(vars: List[Variable], values: List[Double]) extends BaseFactor{
+
+  def apply(varName: String): Variable =
+    vars.filter(v => v.name.equals(varName)).head
+
+  // todo assignmet to value
+  def apply(assignment: List[(String, Integer)]): Double = 0.0
+
+  def *(that: Factor): BaseFactor = {
     if (this.vars.isEmpty || that.vars.isEmpty)
-      Factor(Map[String, List[Double]]())
+      EmptyFactor()
     else {
       // common variables must have the same cardinality
       assert(
-        this.vars.keySet.intersect(that.vars.keySet)
-          .forall(key => this.vars.get(key).size == that.vars.get(key).size),
+        this.vars.map(v => v.name).toSet.intersect(that.vars.map(v => v.name).toSet)
+          .forall(varName => this(varName) == that(varName)),
         "Common variables must have the same cardinality")
-      Factor(
-        this.vars.keySet.union(that.vars.keySet)
-          .map(key => )
-      )
+      EmptyFactor()
     }
   }
 
