@@ -4,17 +4,37 @@ package factor
   * Created by vadim on 23/12/2016.
   */
 
-trait BaseFactor;
+trait BaseFactor {
+  val vars: List[Variable]
+  val vals: List[Double]
+}
 
-case class EmptyFactor() extends BaseFactor;
+case class EmptyFactor() extends BaseFactor {
+  override val vars = List()
+  override val vals: List[Double] = List()
+}
 
-case class Factor(vars: List[Variable], values: List[Double]) extends BaseFactor{
+// variables are saved as List because the order is important
+case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
+  type Assignment = List[Any]
 
   def apply(varName: String): Variable =
     vars.filter(v => v.name.equals(varName)).head
 
-  // todo assignmet to value
-  def apply(assignment: List[(String, Integer)]): Double = 0.0
+  def apply(assignment: Assignment): Double = {
+    assert(vars.length == assignment.length,
+      "Number of variables and size of assignment must agree")
+    vals(assignmentToIndex(assignment))
+  }
+
+  private def assignmentToIndex(assignment: Assignment): Integer =
+    assignment.zipWithIndex
+      .map(t => {
+        val index = t._2
+        val assignmentValue = t._1
+
+        
+      })
 
   def *(that: Factor): BaseFactor = {
     if (this.vars.isEmpty || that.vars.isEmpty)
@@ -28,7 +48,6 @@ case class Factor(vars: List[Variable], values: List[Double]) extends BaseFactor
       EmptyFactor()
     }
   }
-
 }
 
 

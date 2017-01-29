@@ -10,7 +10,6 @@ class FactorTest extends FunSuite {
   test("Can create empty factor") {
     val emptyFactor = EmptyFactor()
 
-    assert(emptyFactor isInstanceOf)
   }
 
 }
