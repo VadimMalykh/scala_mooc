@@ -32,8 +32,9 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
       .map(t => {
         val index = t._2
         val assignmentValue = t._1
+        val assignmentValIndex = vars(index).scope.indexOf(assignmentValue)
 
-
+        return 
       })
 
   def *(that: Factor): BaseFactor = {
