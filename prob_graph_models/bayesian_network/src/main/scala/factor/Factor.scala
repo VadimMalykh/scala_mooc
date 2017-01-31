@@ -33,7 +33,7 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
         val index = t._2
         val assignmentValue = t._1
 
-        
+
       })
 
   def *(that: Factor): BaseFactor = {
