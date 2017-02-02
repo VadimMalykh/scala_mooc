@@ -34,7 +34,7 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
         val assignmentValue = t._1
         val assignmentValIndex = vars(index).scope.indexOf(assignmentValue)
 
-        return 
+        return
       })
 
   def *(that: Factor): BaseFactor = {
