@@ -28,4 +28,21 @@ class FactorTest extends FunSuite with BeforeAndAfter {
     assert(factor(List(2, 1, 2)) === 6)
     assert(factor(List(2, 2, 2)) === 8)
   }
+
+  test("Can return variable by name") {
+    val variable = factor("X_1").get
+    assert(variable.name === "X_1")
+    assert(variable.cardinality === 2)
+    assert(variable.scope == List(1, 2))
+  }
+
+  test("Can multipy two factors") {
+    val mulFactor = factor *
+                    Factor(List(
+                      Variable("X_2", List(1, 2)),
+                      Variable("X_3", List(1, 2)),
+                      Variable("X_4", List(1, 2))),
+                      List(8, 7, 6, 5, 4, 3, 2, 1))
+    assert(mulFactor.vars.map(v => v.name).toSet.equals(Set("X_1, X_2, X_3, X_4")))
+  }
 }
