@@ -5,7 +5,7 @@ package factor
   */
 
 // scope is saved as List because the order is important
-class Variable(val name: String, val scope: List[Any]) {
+case class Variable(val name: String, val scope: List[Any]) {
 
   def this(name: String, cardinality: Integer) = this(name, (0 until cardinality).toList)
   def cardinality: Integer = scope.size
