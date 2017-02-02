@@ -18,8 +18,8 @@ case class EmptyFactor() extends BaseFactor {
 case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
   type Assignment = List[Any]
 
-  def apply(varName: String): Variable =
-    vars.filter(v => v.name.equals(varName)).head
+  def apply(varName: String): Option[Variable] =
+    Option(vars.filter(v => v.name.equals(varName)).head)
 
   def apply(assignment: Assignment): Double = {
     assert(vars.length == assignment.length,
@@ -27,25 +27,26 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
     vals(assignmentToIndex(assignment))
   }
 
-  private def assignmentToIndex(assignment: Assignment): Integer =
+  private def assignmentToIndex(assignment: Assignment): Integer = {
+    val cards = vars.map(v => v.cardinality)
+                          .scanLeft(1)(_ * _)
     assignment.zipWithIndex
       .map(t => {
         val index = t._2
         val assignmentValue = t._1
         val assignmentValIndex = vars(index).scope.indexOf(assignmentValue)
-
-        return
-      })
+        cards(index) * assignmentValIndex
+      }).sum
+  }
 
   def *(that: Factor): BaseFactor = {
     if (this.vars.isEmpty || that.vars.isEmpty)
       EmptyFactor()
     else {
-      // common variables must have the same cardinality
-      assert(
-        this.vars.map(v => v.name).toSet.intersect(that.vars.map(v => v.name).toSet)
-          .forall(varName => this(varName) == that(varName)),
-        "Common variables must have the same cardinality")
+      val commonVarnames = this.vars.map(_.name).toSet.intersect(that.vars.map(_.name).toSet)
+      assert(commonVarnames.forall(varName => this(varName).get.scope.equals(that(varName).get.scope)),
+        "Common variables must have the same scope")
+      val allVars = this.vars ::: that.vars
       EmptyFactor()
     }
   }
