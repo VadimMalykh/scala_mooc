@@ -5,7 +5,7 @@ import org.scalatest._
 /**
   * Created by vadim on 27/12/2016.
   */
-class FactorTest extends FunSuite with BeforeAndAfter {
+class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
 
   var factor: Factor = _
 
@@ -22,11 +22,30 @@ class FactorTest extends FunSuite with BeforeAndAfter {
 
   }
 
-  test("Returns right factor values") {
+  test("Returns right factor values by list assignment") {
     assert(factor(List(1, 1, 1)) === 1)
     assert(factor(List(1, 1, 2)) === 5)
     assert(factor(List(2, 1, 2)) === 6)
     assert(factor(List(2, 2, 2)) === 8)
+  }
+
+  test("Returns right factor values by full assignment") {
+    assert(factor(Map(
+      "X_1" -> 1,
+      "X_2" -> 1,
+      "X_3" -> 1)) === 1)
+    assert(factor(Map(
+      "X_1" -> 1,
+      "X_2" -> 2,
+      "X_3" -> 1)) === 5)
+    assert(factor(Map(
+      "X_1" -> 1,
+      "X_2" -> 2,
+      "X_3" -> 2)) === 6)
+    assert(factor(Map(
+      "X_1" -> 2,
+      "X_2" -> 2,
+      "X_3" -> 2)) === 8)
   }
 
   test("Can return variable by name") {
@@ -34,6 +53,14 @@ class FactorTest extends FunSuite with BeforeAndAfter {
     assert(variable.name === "X_1")
     assert(variable.cardinality === 2)
     assert(variable.scope == List(1, 2))
+  }
+
+  test("Can calculate Assignment by index") {
+    val indexToAssignment = PrivateMethod[Map[String, Any]]('indexToAssignment)
+    val assignment = factor invokePrivate indexToAssignment(5)
+    assert(assignment("X_1") === 1)
+    assert(assignment("X_2") === 2)
+    assert(assignment("X_3") === 2)
   }
 
   test("Can multipy two factors") {

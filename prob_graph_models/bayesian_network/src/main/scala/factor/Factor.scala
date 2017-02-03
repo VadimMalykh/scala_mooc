@@ -16,18 +16,25 @@ case class EmptyFactor() extends BaseFactor {
 
 // variables are saved as List because the order is important
 case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
-  type Assignment = List[Any]
+  type Assignment = Map[String, Any]
 
   def apply(varName: String): Option[Variable] =
     Option(vars.filter(v => v.name.equals(varName)).head)
 
   def apply(assignment: Assignment): Double = {
-    assert(vars.length == assignment.length,
-      "Number of variables and size of assignment must agree")
-    vals(assignmentToIndex(assignment))
+    assert(assignment.keySet == vars.map(_.name).toSet,
+      "Assignment must contain all and only factor variables")
+
+    apply(vars.map(v => assignment(v.name)))
   }
 
-  private def assignmentToIndex(assignment: Assignment): Integer = {
+  def apply(listAssignment: List[Any]): Double = {
+    assert(vars.length == listAssignment.length,
+      "Number of variables and size of assignment must agree")
+    vals(assignmentToIndex(listAssignment))
+  }
+
+  private def assignmentToIndex(assignment: List[Any]): Integer = {
     val cards = vars.map(v => v.cardinality)
                           .scanLeft(1)(_ * _)
     assignment.zipWithIndex
@@ -39,6 +46,29 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
       }).sum
   }
 
+  private def indexToAssignment(index: Integer): Assignment = {
+    val cards = vars.map(v => v.cardinality)
+      .scanLeft(1)(_ * _).tail
+    cards.zipWithIndex
+      .map(t => {
+        val varIndex = index / t._1 % vars(t._2).cardinality
+          (vars(t._2).name, vars(t._2).scope(varIndex))
+      }).toMap
+  }
+
+  /**
+    * Get value by assignment with more variables than in factor
+    * (useful for product and other manipulation functions)
+    *
+    * @param assignment
+    * @return
+    */
+  private def valForPartAssignment(assignment: Assignment): Double = {
+    assert(vars.map(_.name).toSet subsetOf assignment.keySet,
+      "Assignment must contain all factor variables")
+    apply(vars.map(v => assignment(v.name)))
+  }
+
   def *(that: Factor): BaseFactor = {
     if (this.vars.isEmpty || that.vars.isEmpty)
       EmptyFactor()
@@ -47,7 +77,7 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
       assert(commonVarnames.forall(varName => this(varName).get.scope.equals(that(varName).get.scope)),
         "Common variables must have the same scope")
       val allVars = this.vars ::: that.vars
-      EmptyFactor()
+      Factor(allVars, List())
     }
   }
 }
