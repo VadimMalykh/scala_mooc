@@ -48,11 +48,11 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
 
   private def indexToAssignment(index: Integer): Assignment = {
     val cards = vars.map(v => v.cardinality)
-      .scanLeft(1)(_ * _).tail
-    cards.zipWithIndex
+      .scanLeft(1)(_ * _)
+    vars.zipWithIndex
       .map(t => {
-        val varIndex = index / t._1 % vars(t._2).cardinality
-          (vars(t._2).name, vars(t._2).scope(varIndex))
+        val varIndex = index / cards(t._2) % t._1.cardinality
+        (t._1.name, t._1.scope(varIndex))
       }).toMap
   }
 

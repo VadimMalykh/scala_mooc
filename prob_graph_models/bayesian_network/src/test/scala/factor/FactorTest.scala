@@ -57,10 +57,28 @@ class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
 
   test("Can calculate Assignment by index") {
     val indexToAssignment = PrivateMethod[Map[String, Any]]('indexToAssignment)
-    val assignment = factor invokePrivate indexToAssignment(5)
+    var assignment: Map[String, Any] = Map()
+
+    assignment = factor invokePrivate indexToAssignment(0)
+    assert(assignment("X_1") === 1)
+    assert(assignment("X_2") === 1)
+    assert(assignment("X_3") === 1)
+
+    assignment = factor invokePrivate indexToAssignment(4)
+    assert(assignment("X_1") === 1)
+    assert(assignment("X_2") === 2)
+    assert(assignment("X_3") === 1)
+
+    assignment = factor invokePrivate indexToAssignment(5)
     assert(assignment("X_1") === 1)
     assert(assignment("X_2") === 2)
     assert(assignment("X_3") === 2)
+
+    assignment = factor invokePrivate indexToAssignment(7)
+    assert(assignment("X_1") === 2)
+    assert(assignment("X_2") === 2)
+    assert(assignment("X_3") === 2)
+
   }
 
   test("Can multipy two factors") {
