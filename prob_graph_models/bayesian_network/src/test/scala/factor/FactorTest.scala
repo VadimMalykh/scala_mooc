@@ -22,6 +22,16 @@ class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
 
   }
 
+  test("Cannot create factor with dublicate variables") {
+    assertThrows[AssertionError] {
+      val factor = Factor(List(
+        Variable("X_1", List(1, 2)),
+        Variable("X_2", List(1, 2)),
+        Variable("X_2", List(1, 2))),
+        List(1, 2, 3, 4, 5, 6, 7, 8))
+    }
+  }
+
   test("Returns right factor values by list assignment") {
     assert(factor(List(1, 1, 1)) === 1)
     assert(factor(List(1, 1, 2)) === 5)

@@ -4,6 +4,7 @@ package factor
   * Created by vadim on 23/12/2016.
   */
 
+
 trait BaseFactor {
   val vars: List[Variable]
   val vals: List[Double]
@@ -16,7 +17,11 @@ case class EmptyFactor() extends BaseFactor {
 
 // variables are saved as List because the order is important
 case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
+
   type Assignment = Map[String, Any]
+
+  assert(vars.map(_.name).distinct.size == vars.size,
+    "Variable names must be unique")
 
   def apply(varName: String): Option[Variable] =
     Option(vars.filter(v => v.name.equals(varName)).head)
