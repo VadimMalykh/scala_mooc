@@ -81,7 +81,7 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
       val commonVarnames = this.vars.map(_.name).toSet.intersect(that.vars.map(_.name).toSet)
       assert(commonVarnames.forall(varName => this(varName).get.scope.equals(that(varName).get.scope)),
         "Common variables must have the same scope")
-      val allVars = this.vars ::: that.vars
+      val allVars = (this.vars ::: that.vars).distinct
       Factor(allVars, List())
     }
   }

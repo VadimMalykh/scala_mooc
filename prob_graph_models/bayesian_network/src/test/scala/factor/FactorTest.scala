@@ -98,6 +98,6 @@ class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
                       Variable("X_3", List(1, 2)),
                       Variable("X_4", List(1, 2))),
                       List(8, 7, 6, 5, 4, 3, 2, 1))
-    assert(mulFactor.vars.map(v => v.name).toSet.equals(Set("X_1, X_2, X_3, X_4")))
+    assert(mulFactor.vars.map(_.name).toSet === Set("X_1", "X_2", "X_3", "X_4"))
   }
 }
