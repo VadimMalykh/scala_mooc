@@ -92,12 +92,30 @@ class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
   }
 
   test("Can multipy two factors") {
-    val mulFactor = factor *
-                    Factor(List(
-                      Variable("X_2", List(1, 2)),
-                      Variable("X_3", List(1, 2)),
-                      Variable("X_4", List(1, 2))),
-                      List(8, 7, 6, 5, 4, 3, 2, 1))
-    assert(mulFactor.vars.map(_.name).toSet === Set("X_1", "X_2", "X_3", "X_4"))
+
+    val factor1 = Factor(List(
+      Variable("a", List(1, 2, 3)),
+      Variable("b", List(1, 2))),
+      List(0.5, 0.8, 0.1, 0, 0.3, 0.9))
+
+    val factor2 = Factor(List(
+      Variable("b", List(1, 2)),
+      Variable("c", List(1, 2))),
+      List(0.5, 0.7, 0.1, 0.2))
+
+    val mulFactor = factor1 * factor2
+    assert(mulFactor.vars.map(_.name).toSet === Set("a", "b", "c"))
+    assert(mulFactor(Map("a" -> 1, "b" ->1, "c" -> 1)) === 0.25)
+    assert(mulFactor(Map("a" -> 1, "b" ->1, "c" -> 2)) === 0.35)
+    assert(mulFactor(Map("a" -> 1, "b" ->2, "c" -> 1)) === 0.08)
+    assert(mulFactor(Map("a" -> 1, "b" ->2, "c" -> 2)) === 0.16)
+    assert(mulFactor(Map("a" -> 2, "b" ->1, "c" -> 1)) === 0.05)
+    assert(mulFactor(Map("a" -> 2, "b" ->1, "c" -> 2)) === 0.07)
+    assert(mulFactor(Map("a" -> 2, "b" ->2, "c" -> 1)) === 0)
+    assert(mulFactor(Map("a" -> 2, "b" ->2, "c" -> 2)) === 0)
+    assert(mulFactor(Map("a" -> 3, "b" ->1, "c" -> 1)) === 0.15)
+    assert(mulFactor(Map("a" -> 3, "b" ->1, "c" -> 2)) === 0.21)
+    assert(mulFactor(Map("a" -> 3, "b" ->2, "c" -> 1)) === 0.09)
+    assert(mulFactor(Map("a" -> 3, "b" ->2, "c" -> 2)) === 0.18)
   }
 }

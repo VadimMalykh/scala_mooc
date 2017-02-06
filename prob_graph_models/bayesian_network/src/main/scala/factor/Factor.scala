@@ -6,6 +6,10 @@ package factor
 
 
 trait BaseFactor {
+  type Assignment = Map[String, Any]
+
+  def apply(assignment: Assignment): Double = ???
+
   val vars: List[Variable]
   val vals: List[Double]
 }
@@ -18,15 +22,13 @@ case class EmptyFactor() extends BaseFactor {
 // variables are saved as List because the order is important
 case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
 
-  type Assignment = Map[String, Any]
-
   assert(vars.map(_.name).distinct.size == vars.size,
     "Variable names must be unique")
 
   def apply(varName: String): Option[Variable] =
     Option(vars.filter(v => v.name.equals(varName)).head)
 
-  def apply(assignment: Assignment): Double = {
+  override def apply(assignment: Assignment): Double = {
     assert(assignment.keySet == vars.map(_.name).toSet,
       "Assignment must contain all and only factor variables")
 
@@ -51,7 +53,7 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
       }).sum
   }
 
-  private def indexToAssignment(index: Integer): Assignment = {
+  private def indexToAssignment(index: Integer, vars: List[Variable]): Assignment = {
     val cards = vars.map(v => v.cardinality)
       .scanLeft(1)(_ * _)
     vars.zipWithIndex
@@ -60,6 +62,9 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
         (t._1.name, t._1.scope(varIndex))
       }).toMap
   }
+
+  private def indexToAssignment(index: Integer): Assignment =
+    indexToAssignment(index, vars)
 
   /**
     * Get value by assignment with more variables than in factor
@@ -82,7 +87,12 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
       assert(commonVarnames.forall(varName => this(varName).get.scope.equals(that(varName).get.scope)),
         "Common variables must have the same scope")
       val allVars = (this.vars ::: that.vars).distinct
-      Factor(allVars, List())
+      Factor(allVars,
+        (0 until allVars.map(_.cardinality).reduce(_ * _))
+        .map(ind => indexToAssignment(ind, allVars))
+        .map(assignment =>
+            this.valForPartAssignment(assignment) * that.valForPartAssignment(assignment))
+        .toList)
     }
   }
 }
