@@ -27,7 +27,7 @@ class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
 
   }
 
-  test("Cannot create factor with dublicate variables") {
+  test("Cannot create factor with duplicate variables") {
     assertThrows[AssertionError] {
       val factor = Factor(List(
         Variable("X_1", List(1, 2)),
@@ -64,7 +64,7 @@ class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
   }
 
   test("Can return variable by name") {
-    val variable = factor("X_1").get
+    val variable = factor.getVar("X_1").get
     assert(variable.name === "X_1")
     assert(variable.cardinality === 2)
     assert(variable.scope == List(1, 2))

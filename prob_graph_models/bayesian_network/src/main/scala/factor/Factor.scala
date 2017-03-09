@@ -10,6 +10,9 @@ trait BaseFactor {
 
   def apply(assignment: Assignment): Double = ???
 
+  def getVar(varName: String): Option[Variable] =
+    vars.find(_.name == varName)
+
   val vars: List[Variable]
   val vals: Array[Double]
 }
@@ -38,8 +41,8 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
   def update(strAssignment: String, value: Double): Unit =
     update(stringToAssignment(strAssignment), value)
 
-  def apply(varName: String): Option[Variable] =
-    Option(vars.filter(v => v.name.equals(varName)).head)
+  def apply(strAssignment: String): Double =
+    apply(stringToAssignment(strAssignment))
 
   override def apply(assignment: Assignment): Double = {
 
@@ -113,7 +116,8 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
       EmptyFactor()
     else {
       val commonVarnames = this.vars.map(_.name).toSet.intersect(that.vars.map(_.name).toSet)
-      assert(commonVarnames.forall(varName => this(varName).get.scope.equals(that(varName).get.scope)),
+      assert(commonVarnames.forall(varName => this.getVar(varName).get.scope
+                                              .equals(that.getVar(varName).get.scope)),
         "Common variables must have the same scope")
       val allVars = (this.vars ::: that.vars).distinct
       Factor(allVars,
