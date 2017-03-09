@@ -11,28 +11,42 @@ trait BaseFactor {
   def apply(assignment: Assignment): Double = ???
 
   val vars: List[Variable]
-  val vals: List[Double]
+  val vals: Array[Double]
 }
 
 case class EmptyFactor() extends BaseFactor {
   override val vars = List()
-  override val vals: List[Double] = List()
+  override val vals: Array[Double] = Array()
 }
 
 // variables are saved as List because the order is important
-case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
+case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
 
   assert(vars.map(_.name).distinct.size == vars.size,
     "Variable names must be unique")
+
+  def this(vars: List[Variable]) = this(vars, Array.fill(vars.map(_.cardinality).reduce(_ * _))(0.))
+
+  def this(vars: List[Variable], vals: List[AnyVal]) = this(vars, vals.map(_.toString.toDouble).toArray)
+
+  def update(listAssignment: List[Any], value: Double): Unit =
+    vals(assignmentToIndex(listAssignment)) = value
+
+  def update(assignment: Assignment, value: Double): Unit =
+    update(assignmentToList(assignment), value)
+
+  def update(strAssignment: String, value: Double): Unit =
+    update(stringToAssignment(strAssignment), value)
 
   def apply(varName: String): Option[Variable] =
     Option(vars.filter(v => v.name.equals(varName)).head)
 
   override def apply(assignment: Assignment): Double = {
+
     assert(assignment.keySet == vars.map(_.name).toSet,
       "Assignment must contain all and only factor variables")
 
-    apply(vars.map(v => assignment(v.name)))
+    apply(assignmentToList(assignment))
   }
 
   def apply(listAssignment: List[Any]): Double = {
@@ -40,6 +54,21 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
       "Number of variables and size of assignment must agree")
     vals(assignmentToIndex(listAssignment))
   }
+
+  private def assignmentToList(assignment: Assignment): List[Any] = vars.map(v => assignment(v.name))
+
+  private def stringToAssignment(strAssignment: String): Assignment =
+    strAssignment.split(',')
+    .map(token => {
+      val items = token.split("_")
+      if (items.length == 2) {
+        (items(0).toString.trim, items(1).toInt)
+      }
+      else {
+        val varName = token.split("\\d")(0)
+        (varName.trim, token.substring(varName.length).toInt)
+      }
+    }).toMap
 
   private def assignmentToIndex(assignment: List[Any]): Integer = {
     val cards = vars.map(v => v.cardinality)
@@ -92,9 +121,14 @@ case class Factor(vars: List[Variable], vals: List[Double]) extends BaseFactor{
         .map(ind => indexToAssignment(ind, allVars))
         .map(assignment =>
             this.valForPartAssignment(assignment) * that.valForPartAssignment(assignment))
-        .toList)
+          .toArray)
     }
   }
+}
+
+object Factor {
+  def apply(vars: List[Variable]) = new Factor(vars)
+  def apply(vars: List[Variable], vals: List[AnyVal]) = new Factor(vars, vals)
 }
 
 
