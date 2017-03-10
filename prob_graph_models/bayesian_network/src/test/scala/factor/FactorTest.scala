@@ -120,9 +120,10 @@ class FactorTest extends FunSuite with BeforeAndAfter with PrivateMethodTester{
 
     val mulFactor = factor1 * factor2
     assert(mulFactor.vars.map(_.name).toSet === Set("a", "b", "c"))
-    assert(mulFactor(Map("a" -> 1, "b" ->1, "c" -> 1)) === 0.25)
-    assert(mulFactor(Map("a" -> 1, "b" ->1, "c" -> 2)) === 0.35)
-    assert(mulFactor(Map("a" -> 1, "b" ->2, "c" -> 1)) === 0.08)
+    assert(mulFactor("a1,b1,c1") === 0.25)
+    assert(mulFactor("a1, b1, c2") === 0.35)
+    // most ugly way
+    assert(mulFactor("a1,c1,b2") === 0.08)
     assert(mulFactor(Map("a" -> 1, "b" ->2, "c" -> 2)) === 0.16)
     assert(mulFactor(Map("a" -> 2, "b" ->1, "c" -> 1)) === 0.05)
     assert(mulFactor(Map("a" -> 2, "b" ->1, "c" -> 2)) === 0.07)
