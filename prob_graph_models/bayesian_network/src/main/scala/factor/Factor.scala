@@ -9,9 +9,19 @@ trait BaseFactor {
   type Assignment = Map[String, Any]
 
   def apply(assignment: Assignment): Double = ???
+  def apply(strAssignment: String): Double = ???
 
   def getVar(varName: String): Option[Variable] =
     vars.find(_.name == varName)
+
+  // factor product
+  def *(that: BaseFactor): BaseFactor = ???
+
+  // summing out variables (factor marginalization)
+  def -(vars: List[Variable]): BaseFactor = ???
+
+  // conditioning
+  def |(assignment: Assignment): BaseFactor = ???
 
   val vars: List[Variable]
   val vals: Array[Double]
@@ -41,7 +51,7 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
   def update(strAssignment: String, value: Double): Unit =
     update(stringToAssignment(strAssignment), value)
 
-  def apply(strAssignment: String): Double =
+  override def apply(strAssignment: String): Double =
     apply(stringToAssignment(strAssignment))
 
   override def apply(assignment: Assignment): Double = {
@@ -111,7 +121,10 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
     apply(vars.map(v => assignment(v.name)))
   }
 
-  def *(that: Factor): BaseFactor = {
+  override def *(that: BaseFactor): BaseFactor =
+    this * that.asInstanceOf[Factor]
+
+  private def *(that: Factor): BaseFactor = {
     if (this.vars.isEmpty || that.vars.isEmpty)
       EmptyFactor()
     else {
@@ -128,6 +141,18 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
           .toArray)
     }
   }
+
+  private def -(varsToSummOut: List[Variable]): BaseFactor =
+    if (vars.isEmpty || varsToSummOut.isEmpty) {
+      this
+    }
+    else {
+      assert(varsToSummOut.map(_.name).toSet.subsetOf(vars.map(_.name).toSet),
+        "Can only summ out variables of factor")
+
+
+    }
+
 }
 
 object Factor {
