@@ -38,7 +38,7 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
   assert(vars.map(_.name).distinct.size == vars.size,
     "Variable names must be unique")
 
-  def this(vars: List[Variable]) = this(vars, Array.fill(vars.map(_.cardinality).reduce(_ * _))(0.))
+  def this(vars: List[Variable]) = this(vars, Array.fill(vars.map(_.cardinality).reduce(_ * _))(0d))
 
   def this(vars: List[Variable], vals: List[AnyVal]) = this(vars, vals.map(_.toString.toDouble).toArray)
 
@@ -75,7 +75,7 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
     .map(token => {
       val items = token.split("_")
       if (items.length == 2) {
-        (items(0).toString.trim, items(1).toInt)
+        (items(0).trim, items(1).toInt)
       }
       else {
         val varName = token.split("\\d")(0)
@@ -142,17 +142,16 @@ case class Factor(vars: List[Variable], vals: Array[Double]) extends BaseFactor{
     }
   }
 
-  private def -(varsToSummOut: List[Variable]): BaseFactor =
-    if (vars.isEmpty || varsToSummOut.isEmpty) {
-      this
-    }
-    else {
-      assert(varsToSummOut.map(_.name).toSet.subsetOf(vars.map(_.name).toSet),
-        "Can only summ out variables of factor")
-
-
-    }
-
+//  private def -(varsToSummOut: List[Variable]): BaseFactor =
+//    if (vars.isEmpty || varsToSummOut.isEmpty) {
+//      this
+//    }
+//    else {
+//      assert(varsToSummOut.map(_.name).toSet.subsetOf(vars.map(_.name).toSet),
+//        "Can only summ out variables of factor")
+//
+//
+//    }
 }
 
 object Factor {
